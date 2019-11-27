@@ -371,7 +371,7 @@ class ElasticNet(BaseEstimator):
         self.lambda_path_ = self.lambda_path_[n_features<=max_features]
         self.intercept_path_ = self.intercept_path_[n_features<=max_features]
         self.coef_path_ = self.coef_path_[:, n_features<=max_features]
-
+        self.n_lambda_ = self.lambda_path_.size
         return self
 
     def decision_function(self, X, lamb=None):
