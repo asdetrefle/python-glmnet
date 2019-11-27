@@ -370,7 +370,7 @@ class ElasticNet(BaseEstimator):
         n_features = np.count_nonzero(self.coef_path_, axis=0)
         self.lambda_path_ = self.lambda_path_[n_features<=max_features]
         self.intercept_path_ = self.intercept_path_[n_features<=max_features]
-        self.coef_path_ = self.coef_path_[n_features<=max_features]
+        self.coef_path_ = self.coef_path_[:, n_features<=max_features]
 
         return self
 
