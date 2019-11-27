@@ -6,3 +6,14 @@ build/
 _glmnetmodule.c
 dist
 MANIFEST
+
+# Project files #
+#################
+.classpath
+.externalToolBuilders
+.idea
+.vscode
+.project
+.cproject
+.ropeproject
+.settings
