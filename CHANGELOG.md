@@ -4,10 +4,22 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## 2.2.1 - 2020-06-30
+### Fix
+* [#65](https://github.com/civisanalytics/python-glmnet/pull/65)
+  Remove `six` dependency entirely.
+
+## 2.2.0 - 2020-06-29
 ### Changed
 * [#57](https://github.com/civisanalytics/python-glmnet/pull/57)
   Mark the Fortran code as linguist-vendored so that GitHub classifies
   this project as Python (#37).
+* [#62](https://github.com/civisanalytics/python-glmnet/pull/62)
+  Update the cross-validation for users to be able to define groups of
+  observations, which is equivalent with *foldid* of *cvglmnet* in *R*.
+* [#64](https://github.com/civisanalytics/python-glmnet/pull/64)
+   - Python version support: Add v3.8, and drop v3.4 + v3.5.
+   - Maintenance: Drop versioneer; update and pin dependencies for development.
 
 ## 2.1.1 - 2019-03-11
 ### Fixed

@@ -7,9 +7,9 @@ from scipy.sparse import csr_matrix
 from sklearn.datasets import make_regression
 from sklearn.metrics import r2_score
 from sklearn.utils import estimator_checks
-from sklearn.utils.testing import ignore_warnings
+from sklearn.utils._testing import ignore_warnings
 
-from util import sanity_check_regression
+from glmnet.tests.util import sanity_check_regression
 
 from glmnet import ElasticNet
 
@@ -38,7 +38,7 @@ class TestElasticNet(unittest.TestCase):
 
     @ignore_warnings(category=RuntimeWarning)
     def test_estimator_interface(self):
-        estimator_checks.check_estimator(ElasticNet)
+        estimator_checks.check_estimator(ElasticNet())
 
     def test_with_defaults(self):
         m = ElasticNet(random_state=2821)

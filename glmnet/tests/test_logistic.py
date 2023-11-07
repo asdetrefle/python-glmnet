@@ -8,9 +8,9 @@ from scipy.sparse import csr_matrix
 from sklearn.datasets import make_classification
 from sklearn.metrics import accuracy_score, f1_score
 from sklearn.utils import estimator_checks, class_weight
-from sklearn.utils.testing import ignore_warnings
+from sklearn.utils._testing import ignore_warnings
 
-from util import sanity_check_logistic
+from glmnet.tests.util import sanity_check_logistic
 
 from glmnet import LogitNet
 
@@ -68,7 +68,7 @@ class TestLogitNet(unittest.TestCase):
 
     @ignore_warnings(category=RuntimeWarning)  # convergence warnings from glmnet
     def test_estimator_interface(self):
-        estimator_checks.check_estimator(LogitNet)
+        estimator_checks.check_estimator(LogitNet())
 
     def test_with_defaults(self):
         m = LogitNet(random_state=29341)

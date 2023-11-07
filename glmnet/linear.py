@@ -5,15 +5,15 @@ from scipy import stats
 
 from sklearn.base import BaseEstimator
 from sklearn.metrics import r2_score
-from sklearn.model_selection import KFold
+from sklearn.model_selection import KFold, GroupKFold
 from sklearn.utils import check_array, check_X_y
 
 from .errors import _check_error_flag
 from _glmnet import elnet, spelnet, solns
-from .util import (_fix_lambda_path,
-                   _check_user_lambda,
-                   _interpolate_model,
-                   _score_lambda_path)
+from glmnet.util import (_fix_lambda_path,
+                         _check_user_lambda,
+                         _interpolate_model,
+                         _score_lambda_path)
 
 
 class ElasticNet(BaseEstimator):
@@ -133,8 +133,6 @@ class ElasticNet(BaseEstimator):
         performs within cut_point * standard error of lambda_max_.
     """
 
-    CV = KFold
-
     def __init__(self, alpha=1, n_lambda=100, min_lambda_ratio=1e-4,
                  lambda_path=None, standardize=True, fit_intercept=True,
                  lower_limits=-np.inf, upper_limits=np.inf,
@@ -159,7 +157,7 @@ class ElasticNet(BaseEstimator):
         self.max_features = max_features
         self.verbose = verbose
 
-    def fit(self, X, y, sample_weight=None, relative_penalties=None):
+    def fit(self, X, y, sample_weight=None, relative_penalties=None, groups=None):
         """Fit the model to training data. If n_splits > 1 also run n-fold cross
         validation on all values in lambda_path.
 
@@ -180,7 +178,7 @@ class ElasticNet(BaseEstimator):
         X : array, shape (n_samples, n_features)
             Input features
 
-        Y : array, shape (n_samples,)
+        y : array, shape (n_samples,)
             Target values
 
         sample_weight : array, shape (n_samples,)
@@ -189,6 +187,11 @@ class ElasticNet(BaseEstimator):
         relative_penalties: array, shape (n_features,)
             Optional relative weight vector for penalty.
             0 entries remove penalty.
+
+        groups: array, shape (n_samples,)
+            Group labels for the samples used while splitting the dataset into train/test set.
+            If the groups are specified, the groups will be passed to sklearn.model_selection.GroupKFold.
+            If None, then data will be split randomly for K-fold cross-validation via sklearn.model_selection.KFold.
 
         Returns
         -------
@@ -226,11 +229,16 @@ class ElasticNet(BaseEstimator):
 
         self._fit(X, y, sample_weight, relative_penalties)
 
-        if self.n_splits >= 3:
-            self._cv = self.CV(n_splits=self.n_splits, shuffle=True,
-                               random_state=self.random_state)
+        self.n_features_in_ = X.shape[1]
 
-            cv_scores = _score_lambda_path(self, X, y, sample_weight,
+        if self.n_splits >= 3:
+            if groups is None:
+                self._cv = KFold(n_splits=self.n_splits, shuffle=True, random_state=self.random_state)
+            else:
+                self._cv = GroupKFold(n_splits=self.n_splits)
+
+            cv_scores = _score_lambda_path(self, X, y, groups,
+                                           sample_weight,
                                            relative_penalties,
                                            self.scoring,
                                            n_jobs=self.n_jobs,
@@ -367,10 +375,10 @@ class ElasticNet(BaseEstimator):
         nin = nin[:self.n_lambda_]
         self.coef_path_ = solns(_x.shape[1], ca, ia, nin)
 
-        n_features = np.count_nonzero(self.coef_path_, axis=0)
-        self.lambda_path_ = self.lambda_path_[n_features<=max_features]
-        self.intercept_path_ = self.intercept_path_[n_features<=max_features]
-        self.coef_path_ = self.coef_path_[:, n_features<=max_features]
+        count_features = np.count_nonzero(self.coef_path_, axis=0)
+        self.lambda_path_ = self.lambda_path_[count_features <= max_features]
+        self.intercept_path_ = self.intercept_path_[count_features <= max_features]
+        self.coef_path_ = self.coef_path_[:, count_features <= max_features]
         self.n_lambda_ = self.lambda_path_.size
         return self
 
